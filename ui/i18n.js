@@ -17,6 +17,7 @@ export const STRINGS = Object.freeze({
     decreaseYear: 'Decrease year',
     increaseYear: 'Increase year',
     openInCalendar: 'Open in Calendar',
+    themeToggle: 'Dark mode',
   }),
   sv: Object.freeze({
     today: 'Idag',
@@ -36,6 +37,7 @@ export const STRINGS = Object.freeze({
     decreaseYear: 'Minska år',
     increaseYear: 'Öka år',
     openInCalendar: 'Öppna i kalendern',
+    themeToggle: 'Mörkt läge',
   }),
 });
 

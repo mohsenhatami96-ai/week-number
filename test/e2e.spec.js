@@ -161,3 +161,22 @@ test('day chips open Google Calendar day URLs outside the app', async ({ page })
   await expect(page.locator('#week-days .day-chip')).toHaveCount(7);
   await expect(page.locator('#date-days a.day-chip').first()).toHaveAttribute('href', /calendar\.google\.com\/calendar\/r\/day\//);
 });
+
+test('dark mode toggle persists and updates theme tokens', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'light' });
+  await page.goto('/');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  const toggle = page.locator('#theme-toggle');
+  await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+  await toggle.click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+  expect(await page.evaluate(() => localStorage.getItem('weekTool.theme'))).toBe('dark');
+  const pageColor = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--page').trim());
+  expect(pageColor).toBe('#0f141d');
+  await page.reload();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await toggle.click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  expect(await page.evaluate(() => localStorage.getItem('weekTool.theme'))).toBe('light');
+});

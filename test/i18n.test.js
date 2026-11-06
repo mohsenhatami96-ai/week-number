@@ -14,6 +14,8 @@ test('the approved English and Swedish strings are available', () => {
   assert.equal(STRINGS.sv.decreaseYear, 'Minska år');
   assert.equal(STRINGS.en.openInCalendar, 'Open in Calendar');
   assert.equal(STRINGS.sv.openInCalendar, 'Öppna i kalendern');
+  assert.equal(STRINGS.en.themeToggle, 'Dark mode');
+  assert.equal(STRINGS.sv.themeToggle, 'Mörkt läge');
 });
 
 test('Swedish browser languages default to SV', () => {

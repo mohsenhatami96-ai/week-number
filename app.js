@@ -1,6 +1,7 @@
 import { datesOfIsoWeek, isoWeekOfDate, stepIsoWeek, stepIsoYear, todayInStockholm, toUtcNoon, weeksInIsoYear } from './domain/iso-week.js';
 import { formatDate, formatDateRange, dateInputValue, parseDateInput } from './ui/format.js';
 import { readLanguage, saveLanguage } from './ui/language-storage.js';
+import { readTheme, saveTheme, hasStoredTheme } from './ui/theme-storage.js';
 import { translate } from './ui/i18n.js';
 import { calendarDayUrl } from './ui/calendar-links.js';
 
@@ -33,6 +34,8 @@ const today = todayInStockholm();
 const currentWeek = isoWeekOfDate(today);
 const selectedDate = $('#date-input');
 let language = readLanguage(getStorage(), navigator.language || navigator.languages?.[0] || 'en');
+const colorSchemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+let theme = readTheme(getStorage(), colorSchemeQuery);
 
 function getStorage() {
   try {
@@ -147,6 +150,23 @@ function renderWeek() {
   }
 }
 
+
+function themeColorMeta() {
+  return document.querySelector('meta[name="theme-color"]');
+}
+
+function applyTheme() {
+  document.documentElement.setAttribute('data-theme', theme);
+  document.documentElement.style.colorScheme = theme;
+  const meta = themeColorMeta();
+  if (meta) meta.content = theme === 'dark' ? '#0f141d' : '#f5f7fb';
+  const toggle = $('#theme-toggle');
+  if (toggle) {
+    toggle.setAttribute('aria-pressed', String(theme === 'dark'));
+    toggle.setAttribute('aria-label', t('themeToggle'));
+  }
+}
+
 function applyLanguage() {
   document.documentElement.lang = language;
   $('#app-title').textContent = language === 'sv' ? 'Veckonummer' : 'Week numbers';
@@ -176,6 +196,7 @@ function applyLanguage() {
   $('#today-days').setAttribute('aria-label', language === 'sv' ? 'Dagar i denna ISO-vecka' : 'Days of this ISO week');
   $('#date-days').setAttribute('aria-label', language === 'sv' ? 'Dagar i den valda ISO-veckan' : 'Days of the selected ISO week');
   $('#week-days').setAttribute('aria-label', language === 'sv' ? 'Dagar i den valda ISO-veckan' : 'Days of the selected ISO week');
+  applyTheme();
   renderToday();
   renderDate();
   renderWeek();
@@ -227,6 +248,24 @@ for (const button of document.querySelectorAll('.stepper-btn')) {
       : stepIsoYear(week ?? 1, year, delta);
     applyWeekYear(next);
   });
+}
+
+
+$('#theme-toggle')?.addEventListener('click', () => {
+  theme = theme === 'dark' ? 'light' : 'dark';
+  saveTheme(getStorage(), theme);
+  applyTheme();
+});
+
+const onSystemThemeChange = () => {
+  if (hasStoredTheme(getStorage())) return;
+  theme = readTheme(getStorage(), colorSchemeQuery);
+  applyTheme();
+};
+if (typeof colorSchemeQuery.addEventListener === 'function') {
+  colorSchemeQuery.addEventListener('change', onSystemThemeChange);
+} else if (typeof colorSchemeQuery.addListener === 'function') {
+  colorSchemeQuery.addListener(onSystemThemeChange);
 }
 
 selectedDate.value = dateInputValue(today);

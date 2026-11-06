@@ -37,3 +37,11 @@ test('results and errors have live-region semantics', () => {
   assert.match(index, /id="week-result" aria-live="polite"/);
   assert.match(index, /<main id="main-content">/);
 });
+
+test('a theme toggle sits beside the language switch', () => {
+  assert.match(index, /id="theme-toggle"/);
+  assert.match(index, /class="theme-toggle"/);
+  assert.match(index, /aria-pressed=/);
+  assert.match(index, /weekTool\.theme/);
+  assert.match(index, /data-theme/);
+});
