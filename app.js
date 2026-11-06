@@ -63,9 +63,16 @@ function renderDays(container, dates, { today: highlightToday = false, selectedD
     chip.setAttribute('aria-label', accessibleName);
     if (isToday) chip.setAttribute('aria-current', 'date');
     const shortDate = formatDate(date, language).replace(/ \d{4}$/, '');
+    const [dayNum, ...monthParts] = shortDate.split(' ');
+    const dateSpan = node('span', 'day-date');
+    dateSpan.append(
+      node('span', 'day-num', dayNum),
+      document.createTextNode(' '),
+      node('span', 'day-month', monthParts.join(' ')),
+    );
     chip.append(
       node('span', 'day-name', dayNames[language][index]),
-      node('span', 'day-date', shortDate),
+      dateSpan,
       node('time', 'sr-only', day),
     );
     const time = chip.querySelector('time');
@@ -131,7 +138,8 @@ function renderWeek() {
 function applyLanguage() {
   document.documentElement.lang = language;
   $('#app-title').textContent = language === 'sv' ? 'Veckonummer' : 'Week numbers';
-  document.title = `${language === 'sv' ? 'Veckonummer' : 'Week numbers'} · ${language === 'sv' ? 'Week numbers' : 'Veckonummer'}`;
+  document.title = language === 'sv' ? 'Veckonummer' : 'Week numbers';
+  $('.brand').setAttribute('aria-label', document.title);
   $('.language-switch').setAttribute('aria-label', language === 'sv' ? 'Språk' : 'Language');
   for (const element of document.querySelectorAll('[data-i18n]')) {
     element.textContent = t(element.dataset.i18n);

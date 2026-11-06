@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#f5f7fb">
   <meta name="description" content="Find ISO week numbers and their Monday–Sunday dates in English or Swedish.">
-  <title>Week numbers · Veckonummer</title>
+  <title>Week numbers</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='5' y='9' width='54' height='50' rx='12' fill='%232657c6'/%3E%3Cpath d='M18 5v13M46 5v13M6 26h52' stroke='%23ffffff' stroke-width='5'/%3E%3Cpath d='M19 35v12M32 35v12M45 35v12' stroke='%23ffffff' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="./styles.css">
   <script type="module" src="./app.js"></script>
@@ -27,7 +27,7 @@
   </svg>
 
   <header class="site-header">
-    <a class="brand" href="./" aria-label="Week numbers · Veckonummer">
+    <a class="brand" href="./" aria-label="Week numbers">
       <span class="brand-mark"><svg aria-hidden="true"><use href="#icon-calendar"></use></svg></span>
       <span id="app-title">Week numbers</span>
     </a>
@@ -69,10 +69,7 @@
         </div>
         <form id="date-form">
           <label for="date-input" data-i18n="chooseDate">Choose date</label>
-          <div class="input-with-icon">
-            <input id="date-input" type="date" min="0001-01-01" max="9999-12-31" required>
-            <svg aria-hidden="true"><use href="#icon-calendar"></use></svg>
-          </div>
+          <input id="date-input" type="date" min="0001-01-01" max="9999-12-31" required>
         </form>
         <div class="result" id="date-result" aria-live="polite">
           <span class="eyebrow" data-i18n="result">Result</span>
