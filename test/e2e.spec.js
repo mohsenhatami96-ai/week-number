@@ -148,3 +148,16 @@ test('week steppers expose at least 44px tap targets', async ({ page }) => {
     expect(box.height).toBeGreaterThanOrEqual(44);
   }
 });
+
+test('day chips open Google Calendar day URLs outside the app', async ({ page }) => {
+  await page.clock.install({ time: new Date('2026-11-06T10:00:00Z') });
+  await page.goto('/');
+  const chip = page.locator('#today-days .day-chip.is-today');
+  await expect(chip).toHaveAttribute('href', 'https://calendar.google.com/calendar/r/day/2026/11/6');
+  await expect(chip).toHaveAttribute('target', '_blank');
+  await expect(chip).toHaveAttribute('rel', /noopener/);
+  await expect(chip).toHaveAttribute('title', /Calendar|kalendern/i);
+  await expect(page.locator('#date-days .day-chip')).toHaveCount(7);
+  await expect(page.locator('#week-days .day-chip')).toHaveCount(7);
+  await expect(page.locator('#date-days a.day-chip').first()).toHaveAttribute('href', /calendar\.google\.com\/calendar\/r\/day\//);
+});

@@ -2,6 +2,7 @@ import { datesOfIsoWeek, isoWeekOfDate, stepIsoWeek, stepIsoYear, todayInStockho
 import { formatDate, formatDateRange, dateInputValue, parseDateInput } from './ui/format.js';
 import { readLanguage, saveLanguage } from './ui/language-storage.js';
 import { translate } from './ui/i18n.js';
+import { calendarDayUrl } from './ui/calendar-links.js';
 
 const $ = (selector) => document.querySelector(selector);
 const elements = {
@@ -57,10 +58,19 @@ function renderDays(container, dates, { today: highlightToday = false, selectedD
   dates.forEach((date, index) => {
     const isToday = highlightToday && date.getTime() === today.getTime();
     const isSelected = selected && date.getTime() === selected.getTime();
-    const chip = node('li', `day-chip${isToday ? ' is-today' : ''}${isSelected ? ' is-selected' : ''}`);
+    const item = node('li', 'day-chip-item');
+    const chip = node('a', `day-chip${isToday ? ' is-today' : ''}${isSelected ? ' is-selected' : ''}`);
     const day = formatDate(date, language);
-    const accessibleName = `${dayNames[language][index]}, ${day}${isToday ? `, ${t('today')}` : ''}`;
+    const openLabel = t('openInCalendar');
+    const accessibleName = `${openLabel}: ${dayNames[language][index]}, ${day}${isToday ? `, ${t('today')}` : ''}`;
+    const href = calendarDayUrl(date);
+    chip.href = href;
+    chip.title = openLabel;
     chip.setAttribute('aria-label', accessibleName);
+    if (href.startsWith('https:')) {
+      chip.target = '_blank';
+      chip.rel = 'noopener noreferrer';
+    }
     if (isToday) chip.setAttribute('aria-current', 'date');
     const shortDate = formatDate(date, language).replace(/ \d{4}$/, '');
     const [dayNum, ...monthParts] = shortDate.split(' ');
@@ -78,7 +88,8 @@ function renderDays(container, dates, { today: highlightToday = false, selectedD
     const time = chip.querySelector('time');
     time.dateTime = dateInputValue(date);
     time.setAttribute('aria-hidden', 'true');
-    container.append(chip);
+    item.append(chip);
+    container.append(item);
   });
 }
 

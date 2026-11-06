@@ -16,6 +16,7 @@ export const STRINGS = Object.freeze({
     increaseWeek: 'Increase week',
     decreaseYear: 'Decrease year',
     increaseYear: 'Increase year',
+    openInCalendar: 'Open in Calendar',
   }),
   sv: Object.freeze({
     today: 'Idag',
@@ -34,6 +35,7 @@ export const STRINGS = Object.freeze({
     increaseWeek: 'Öka vecka',
     decreaseYear: 'Minska år',
     increaseYear: 'Öka år',
+    openInCalendar: 'Öppna i kalendern',
   }),
 });
 
