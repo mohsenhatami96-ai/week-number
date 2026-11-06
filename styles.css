@@ -64,7 +64,7 @@ main { width: min(1024px, calc(100% - 32px)); margin: 24px auto 0; }
 .eyebrow { display: block; color: var(--muted); font-size: 12px; font-weight: 500; line-height: 1.4; }
 .current-week { display: flex; align-items: baseline; gap: 9px; line-height: 1; }
 .current-week strong { color: var(--blue-dark); font-size: 72px; line-height: 1.02; font-weight: 700; letter-spacing: -0.065em; font-variant-numeric: tabular-nums; }
-.current-week > span { color: var(--muted); font-size: 18px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.current-week > span { color: var(--muted); font-size: 18px; font-weight: 500; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .range-block { border-left: 1px solid #d4deed; padding-left: 16px; margin-bottom: 5px; min-width: 0; }
 .range-block .eyebrow { margin-bottom: 7px; }
 .date-range { margin: 0; color: var(--text); font-size: 16px; font-weight: 600; line-height: 1.5; font-variant-numeric: tabular-nums; }
@@ -86,7 +86,7 @@ main { width: min(1024px, calc(100% - 32px)); margin: 24px auto 0; }
 form label { display: block; margin-bottom: 8px; color: var(--muted); font-size: 12px; font-weight: 600; }
 input { width: 100%; height: 48px; min-width: 0; border: 1px solid #ccd6e5; border-radius: 10px; background: var(--surface); color: var(--text); padding: 11px 12px; font-size: 16px; font-variant-numeric: tabular-nums; transition: border-color 120ms ease; }
 input:hover { border-color: #95a8c5; }
-.week-form { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 48px; gap: 12px; align-items: end; }
+.week-form { display: grid; grid-template-columns: minmax(0, 1fr) minmax(7.5rem, 1fr) 48px; gap: 12px; align-items: end; }
 .week-submit { display: grid; place-items: center; width: 48px; height: 48px; border: 0; border-radius: 10px; color: #ffffff; background: var(--blue); }
 .week-submit:hover { background: var(--blue-dark); }
 .week-submit svg { width: 20px; height: 20px; }
@@ -109,16 +109,21 @@ input:hover { border-color: #95a8c5; }
 .stepper input {
   width: 100%;
   height: 48px;
-  min-width: 0;
+  min-width: 4.5ch;
   border: 0;
   border-radius: 0;
   border-left: 1px solid #ccd6e5;
   border-right: 1px solid #ccd6e5;
   background: transparent;
   text-align: center;
-  padding: 11px 6px;
+  padding: 11px 4px;
+  font-variant-numeric: tabular-nums;
   -moz-appearance: textfield;
   appearance: textfield;
+}
+#year-input {
+  min-width: 5.5ch;
+  letter-spacing: 0.02em;
 }
 .stepper input:hover { border-color: #ccd6e5; }
 .stepper input:focus-visible { outline: none; }
@@ -178,6 +183,22 @@ footer p { max-width: 575px; margin: 0; font-size: 12px; line-height: 1.6; }
   .week-form { gap: 8px; }
   .converter-card .day-strip { gap: 4px; }
   .converter-card .day-chip .day-name, .converter-card .day-chip .day-date { font-size: 12px; }
+}
+@media (max-width: 560px) {
+  .week-form {
+    grid-template-columns: 1fr;
+  }
+  .week-submit {
+    width: 100%;
+  }
+  .stepper {
+    grid-template-columns: 48px minmax(5.5rem, 1fr) 48px;
+  }
+  #year-input, #week-input {
+    min-width: 0;
+    font-size: 18px;
+    padding-inline: 8px;
+  }
 }
 @media (max-width: 350px) {
   .week-form { grid-template-columns: 1fr; }
