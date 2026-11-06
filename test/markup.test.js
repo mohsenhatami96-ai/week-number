@@ -11,7 +11,7 @@ test('the page loads only local static assets and an ES module', () => {
 });
 
 test('the three approved cards and all translator keys are present', () => {
-  for (const key of ['today', 'dateToWeek', 'weekToDates', 'chooseDate', 'result', 'weekNumber', 'year', 'dateRange', 'isoNote']) {
+  for (const key of ['today', 'dateToWeek', 'weekToDates', 'chooseDate', 'result', 'weekNumber', 'year', 'dateRange', 'isoNote', 'publicHoliday']) {
     assert.match(index, new RegExp(`data-i18n="${key}"`), `Missing translation key ${key}`);
   }
 });
@@ -44,4 +44,9 @@ test('a theme toggle sits beside the language switch', () => {
   assert.match(index, /aria-pressed=/);
   assert.match(index, /weekTool\.theme/);
   assert.match(index, /data-theme/);
+});
+
+test('each day strip has a public-holiday legend', () => {
+  assert.equal((index.match(/class="day-strip-legend"/g) || []).length, 3);
+  assert.match(index, /data-i18n="publicHoliday"/);
 });

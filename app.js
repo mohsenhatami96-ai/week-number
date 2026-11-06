@@ -4,6 +4,7 @@ import { readLanguage, saveLanguage } from './ui/language-storage.js';
 import { readTheme, saveTheme, hasStoredTheme } from './ui/theme-storage.js';
 import { translate } from './ui/i18n.js';
 import { calendarDayUrl } from './ui/calendar-links.js';
+import { swedishHolidayOn } from './domain/swedish-holidays.js';
 
 const $ = (selector) => document.querySelector(selector);
 const elements = {
@@ -61,15 +62,28 @@ function renderDays(container, dates, { today: highlightToday = false, selectedD
   dates.forEach((date, index) => {
     const isToday = highlightToday && date.getTime() === today.getTime();
     const isSelected = selected && date.getTime() === selected.getTime();
+    const holiday = swedishHolidayOn(date);
+    const classes = [
+      'day-chip',
+      isToday ? 'is-today' : '',
+      isSelected ? 'is-selected' : '',
+      holiday ? 'is-holiday' : '',
+    ].filter(Boolean).join(' ');
     const item = node('li', 'day-chip-item');
-    const chip = node('a', `day-chip${isToday ? ' is-today' : ''}${isSelected ? ' is-selected' : ''}`);
+    const chip = node('a', classes);
     const day = formatDate(date, language);
     const openLabel = t('openInCalendar');
-    const accessibleName = `${openLabel}: ${dayNames[language][index]}, ${day}${isToday ? `, ${t('today')}` : ''}`;
+    const holidayName = holiday ? holiday[language] : '';
+    const accessibleName = [
+      `${openLabel}: ${dayNames[language][index]}, ${day}`,
+      isToday ? t('today') : '',
+      holidayName,
+    ].filter(Boolean).join(', ');
     const href = calendarDayUrl(date);
     chip.href = href;
-    chip.title = openLabel;
+    chip.title = holidayName ? `${openLabel} · ${holidayName}` : openLabel;
     chip.setAttribute('aria-label', accessibleName);
+    if (holiday) chip.dataset.holiday = holiday.id;
     if (href.startsWith('https:')) {
       chip.target = '_blank';
       chip.rel = 'noopener noreferrer';
@@ -88,6 +102,10 @@ function renderDays(container, dates, { today: highlightToday = false, selectedD
       dateSpan,
       node('time', 'sr-only', day),
     );
+    if (holiday && isToday) {
+      chip.append(node('span', 'holiday-dot', ''));
+      chip.querySelector('.holiday-dot').setAttribute('aria-hidden', 'true');
+    }
     const time = chip.querySelector('time');
     time.dateTime = dateInputValue(date);
     time.setAttribute('aria-hidden', 'true');

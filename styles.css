@@ -22,6 +22,10 @@
   --focus-ring: #76a0ee;
   --card-shadow: 0 3px 12px rgb(31 53 87 / 0.025);
   --error: #b42318;
+  --holiday: #f6e4e4;
+  --holiday-text: #8f3b3b;
+  --holiday-border: #e2bcbc;
+  --holiday-dot: #c04545;
   --radius: 18px;
   font-family: Inter, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   font-synthesis: none;
@@ -51,6 +55,10 @@
   --footer-rule: #5a6b86;
   --focus-ring: #6d92e0;
   --card-shadow: 0 3px 16px rgb(0 0 0 / 0.28);
+  --holiday: #3a2226;
+  --holiday-text: #efb4b4;
+  --holiday-border: #6a3a40;
+  --holiday-dot: #e07878;
 }
 
 * { box-sizing: border-box; }
@@ -169,6 +177,56 @@ main { width: min(1024px, calc(100% - 32px)); margin: 24px auto 0; }
 .day-chip.is-selected .day-date { color: var(--text); }
 .day-chip.is-selected:not(.is-today) { border-color: var(--chip-hover-border); background: var(--blue-soft); }
 .day-chip.is-selected:not(.is-today):hover { background: var(--selected-hover); }
+.day-chip.is-holiday:not(.is-today) {
+  color: var(--holiday-text);
+  background: var(--holiday);
+  border-color: var(--holiday-border);
+}
+.day-chip.is-holiday:not(.is-today) .day-date { color: var(--holiday-text); }
+.day-chip.is-holiday:not(.is-today):hover {
+  border-color: color-mix(in srgb, var(--holiday-text) 45%, var(--holiday-border));
+  background: color-mix(in srgb, var(--holiday) 82%, var(--holiday-text));
+  box-shadow: none;
+}
+.day-chip.is-holiday.is-selected:not(.is-today) {
+  border-color: color-mix(in srgb, var(--holiday-text) 50%, var(--holiday-border));
+  background: var(--holiday);
+}
+.day-chip.is-holiday.is-today {
+  position: relative;
+}
+.day-chip .holiday-dot {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--holiday-dot);
+  box-shadow: 0 0 0 1.5px rgb(255 255 255 / 0.9);
+  pointer-events: none;
+}
+[data-theme="dark"] .day-chip .holiday-dot {
+  box-shadow: 0 0 0 1.5px rgb(15 20 29 / 0.85);
+}
+.day-strip-legend {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.35;
+}
+.day-strip-legend-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--holiday);
+  border: 1px solid var(--holiday-border);
+  flex: 0 0 auto;
+}
 
 .converter-grid { display: grid; gap: 16px; margin-top: 16px; }
 .converter-card { display: flex; flex-direction: column; }

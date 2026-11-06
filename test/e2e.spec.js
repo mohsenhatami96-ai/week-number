@@ -180,3 +180,29 @@ test('dark mode toggle persists and updates theme tokens', async ({ page }) => {
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
   expect(await page.evaluate(() => localStorage.getItem('weekTool.theme'))).toBe('light');
 });
+
+test('Swedish holiday chips use soft-red styling and keep calendar links', async ({ page }) => {
+  await page.goto('/');
+  await page.locator('#date-input').fill('2026-06-06');
+  const holiday = page.locator('#date-days .day-chip.is-holiday');
+  await expect(holiday).toHaveCount(1);
+  await expect(holiday).toHaveAttribute('data-holiday', 'nationalDay');
+  await expect(holiday).toHaveAttribute('href', 'https://calendar.google.com/calendar/r/day/2026/6/6');
+  await expect(holiday).toHaveAttribute('aria-label', /National Day|Sveriges nationaldag/);
+  await expect(page.locator('.day-strip-legend').first()).toContainText(/Public holiday\.|Helgdag/);
+
+  await page.locator('#week-input').fill('25');
+  await page.locator('#year-input').fill('2026');
+  await expect(page.locator('#week-days .day-chip[data-holiday="midsummerEve"]')).toHaveCount(1);
+  await expect(page.locator('#week-days .day-chip[data-holiday="midsummerDay"]')).toHaveCount(1);
+});
+
+test('today that is also a holiday keeps blue styling with a red dot', async ({ page }) => {
+  await page.clock.install({ time: new Date('2026-06-06T10:00:00Z') });
+  await page.goto('/');
+  const chip = page.locator('#today-days .day-chip.is-today.is-holiday');
+  await expect(chip).toHaveCount(1);
+  await expect(chip.locator('.holiday-dot')).toHaveCount(1);
+  const bg = await chip.evaluate((el) => getComputedStyle(el).backgroundColor);
+  expect(bg).toMatch(/rgb\(\s*36,\s*91,\s*199\s*\)/);
+});
