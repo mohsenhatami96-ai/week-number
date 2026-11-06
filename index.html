@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f7fb">
+  <meta name="description" content="Find ISO week numbers and their Monday–Sunday dates in English or Swedish.">
+  <title>Week numbers · Veckonummer</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='5' y='9' width='54' height='50' rx='12' fill='%232657c6'/%3E%3Cpath d='M18 5v13M46 5v13M6 26h52' stroke='%23ffffff' stroke-width='5'/%3E%3Cpath d='M19 35v12M32 35v12M45 35v12' stroke='%23ffffff' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <svg class="icon-definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="icon-calendar" viewBox="0 0 24 24">
+      <rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18M8 14h1M12 14h1M16 14h1M8 17.5h1M12 17.5h1"/>
+    </symbol>
+    <symbol id="icon-today" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="3.5"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5"/>
+    </symbol>
+    <symbol id="icon-week" viewBox="0 0 24 24">
+      <path d="M5 4v16M8 4v16M11 4v16M14 4v16M17 4v16M20 4v16M3 4h18M3 20h18"/>
+    </symbol>
+    <symbol id="icon-arrow" viewBox="0 0 24 24">
+      <path d="M5 12h14M14 7l5 5-5 5"/>
+    </symbol>
+  </svg>
+
+  <header class="site-header">
+    <a class="brand" href="./" aria-label="Week numbers · Veckonummer">
+      <span class="brand-mark"><svg aria-hidden="true"><use href="#icon-calendar"></use></svg></span>
+      <span id="app-title">Week numbers</span>
+    </a>
+    <div class="language-switch" role="group" aria-label="Language">
+      <button type="button" data-language="en" aria-pressed="true">EN</button>
+      <span aria-hidden="true"></span>
+      <button type="button" data-language="sv" aria-pressed="false">SV</button>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <section class="card today-card" aria-labelledby="today-heading">
+      <div class="card-heading">
+        <span class="card-icon"><svg aria-hidden="true"><use href="#icon-today"></use></svg></span>
+        <h2 id="today-heading" data-i18n="today">Today</h2>
+        <span class="timezone">Europe/Stockholm</span>
+      </div>
+      <div class="today-overview" id="today-result">
+        <div class="week-figure">
+          <span class="eyebrow" data-i18n="weekNumber">Week number</span>
+          <div class="current-week">
+            <strong id="today-week"></strong>
+            <span id="today-year"></span>
+          </div>
+        </div>
+        <div class="range-block">
+          <span class="eyebrow" data-i18n="dateRange">Date range</span>
+          <p class="date-range" id="today-range"></p>
+        </div>
+      </div>
+      <ol class="day-strip" id="today-days" aria-label="Days of this ISO week"></ol>
+    </section>
+
+    <div class="converter-grid">
+      <section class="card converter-card" aria-labelledby="date-heading">
+        <div class="card-heading">
+          <span class="card-icon"><svg aria-hidden="true"><use href="#icon-calendar"></use></svg></span>
+          <h2 id="date-heading" data-i18n="dateToWeek">Date → week</h2>
+        </div>
+        <form id="date-form">
+          <label for="date-input" data-i18n="chooseDate">Choose date</label>
+          <div class="input-with-icon">
+            <input id="date-input" type="date" min="0001-01-01" max="9999-12-31" required>
+            <svg aria-hidden="true"><use href="#icon-calendar"></use></svg>
+          </div>
+        </form>
+        <div class="result" id="date-result" aria-live="polite">
+          <span class="eyebrow" data-i18n="result">Result</span>
+          <p class="week-badge" id="date-week-badge"></p>
+          <p class="date-range" id="date-range"></p>
+          <ol class="day-strip" id="date-days" aria-label="Days of the selected ISO week"></ol>
+        </div>
+      </section>
+
+      <section class="card converter-card" aria-labelledby="week-heading">
+        <div class="card-heading">
+          <span class="card-icon"><svg aria-hidden="true"><use href="#icon-week"></use></svg></span>
+          <h2 id="week-heading" data-i18n="weekToDates">Week → dates</h2>
+        </div>
+        <form id="week-form" class="week-form" novalidate>
+          <div>
+            <label for="week-input" data-i18n="weekNumber">Week number</label>
+            <input id="week-input" type="number" min="1" max="53" step="1" inputmode="numeric" required aria-describedby="week-error">
+          </div>
+          <div>
+            <label for="year-input" data-i18n="year">Year</label>
+            <input id="year-input" type="number" min="1" max="9999" step="1" inputmode="numeric" required>
+          </div>
+          <button class="week-submit" type="submit" aria-label="Show date range" title="Show date range">
+            <svg aria-hidden="true"><use href="#icon-arrow"></use></svg>
+          </button>
+        </form>
+        <p class="form-error" id="week-error" role="alert" hidden></p>
+        <div class="result" id="week-result" aria-live="polite">
+          <span class="eyebrow" data-i18n="dateRange">Date range</span>
+          <p class="week-badge" id="week-range"></p>
+          <ol class="day-strip" id="week-days" aria-label="Days of the selected ISO week"></ol>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <span class="footer-rule" aria-hidden="true"></span>
+    <p data-i18n="isoNote">ISO weeks: Mon–Sun; week 1 has the year’s first Thursday.</p>
+  </footer>
+</body>
+</html>
