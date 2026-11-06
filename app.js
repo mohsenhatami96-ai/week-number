@@ -1,4 +1,4 @@
-import { datesOfIsoWeek, isoWeekOfDate, todayInStockholm, toUtcNoon, weeksInIsoYear } from './domain/iso-week.js';
+import { datesOfIsoWeek, isoWeekOfDate, stepIsoWeek, stepIsoYear, todayInStockholm, toUtcNoon, weeksInIsoYear } from './domain/iso-week.js';
 import { formatDate, formatDateRange, dateInputValue, parseDateInput } from './ui/format.js';
 import { readLanguage, saveLanguage } from './ui/language-storage.js';
 import { translate } from './ui/i18n.js';
@@ -116,6 +116,7 @@ function renderWeek() {
   }
   try {
     const dates = datesOfIsoWeek(week, year);
+    elements.weekInput.max = String(weeksInIsoYear(year));
     elements.weekRange.textContent = formatDateRange(dates[0], dates[6], language);
     elements.weekRange.dataset.weekBadge = badge(week, year);
     elements.weekRange.setAttribute('aria-label', `${badge(week, year)}: ${elements.weekRange.textContent}`);
@@ -123,7 +124,7 @@ function renderWeek() {
     elements.weekResult.hidden = false;
     elements.error.hidden = true;
     elements.weekInput.removeAttribute('aria-invalid');
-    } catch {
+  } catch {
     elements.weekResult.hidden = true;
     const validYear = Number.isInteger(year) && year >= 1 && year <= 9999;
     const limit = validYear ? weeksInIsoYear(year) : 52;
@@ -150,6 +151,17 @@ function applyLanguage() {
   const submitLabel = language === 'sv' ? 'Visa datumintervall' : 'Show date range';
   $('.week-submit').setAttribute('aria-label', submitLabel);
   $('.week-submit').title = submitLabel;
+  for (const button of document.querySelectorAll('.stepper-btn')) {
+    const key = button.dataset.step === 'week'
+      ? (button.dataset.delta === '1' ? 'increaseWeek' : 'decreaseWeek')
+      : (button.dataset.delta === '1' ? 'increaseYear' : 'decreaseYear');
+    button.setAttribute('aria-label', t(key));
+  }
+  for (const group of document.querySelectorAll('.stepper[role="group"]')) {
+    const field = group.closest('.stepper-field');
+    const label = field?.querySelector('label');
+    if (label) group.setAttribute('aria-label', label.textContent);
+  }
   $('#today-days').setAttribute('aria-label', language === 'sv' ? 'Dagar i denna ISO-vecka' : 'Days of this ISO week');
   $('#date-days').setAttribute('aria-label', language === 'sv' ? 'Dagar i den valda ISO-veckan' : 'Days of the selected ISO week');
   $('#week-days').setAttribute('aria-label', language === 'sv' ? 'Dagar i den valda ISO-veckan' : 'Days of the selected ISO week');
@@ -175,6 +187,34 @@ elements.yearInput.addEventListener('change', renderWeek);
 for (const input of [elements.weekInput, elements.yearInput]) {
   input.addEventListener('input', () => {
     if (input.validity.valid && input.value) renderWeek();
+  });
+}
+
+function readWeekYear() {
+  const week = Number(elements.weekInput.value);
+  const year = Number(elements.yearInput.value);
+  return {
+    week: Number.isInteger(week) ? week : null,
+    year: Number.isInteger(year) ? year : null,
+  };
+}
+
+function applyWeekYear({ week, year }) {
+  elements.weekInput.value = week;
+  elements.yearInput.value = year;
+  elements.weekInput.max = String(weeksInIsoYear(year));
+  renderWeek();
+}
+
+for (const button of document.querySelectorAll('.stepper-btn')) {
+  button.addEventListener('click', () => {
+    const delta = Number(button.dataset.delta);
+    const { week, year } = readWeekYear();
+    if (year === null) return;
+    const next = button.dataset.step === 'week'
+      ? stepIsoWeek(week ?? 1, year, delta)
+      : stepIsoYear(week ?? 1, year, delta);
+    applyWeekYear(next);
   });
 }
 

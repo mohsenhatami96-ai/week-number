@@ -85,13 +85,21 @@
           <h2 id="week-heading" data-i18n="weekToDates">Week → dates</h2>
         </div>
         <form id="week-form" class="week-form" novalidate>
-          <div>
+          <div class="stepper-field">
             <label for="week-input" data-i18n="weekNumber">Week number</label>
-            <input id="week-input" type="number" min="1" max="53" step="1" inputmode="numeric" required aria-describedby="week-error">
+            <div class="stepper" role="group" aria-label="Week number">
+              <button type="button" class="stepper-btn" data-step="week" data-delta="-1" aria-label="Decrease week">−</button>
+              <input id="week-input" type="number" min="1" max="53" step="1" inputmode="numeric" required aria-describedby="week-error">
+              <button type="button" class="stepper-btn" data-step="week" data-delta="1" aria-label="Increase week">+</button>
+            </div>
           </div>
-          <div>
+          <div class="stepper-field">
             <label for="year-input" data-i18n="year">Year</label>
-            <input id="year-input" type="number" min="1" max="9999" step="1" inputmode="numeric" required>
+            <div class="stepper" role="group" aria-label="Year">
+              <button type="button" class="stepper-btn" data-step="year" data-delta="-1" aria-label="Decrease year">−</button>
+              <input id="year-input" type="number" min="1" max="9999" step="1" inputmode="numeric" required>
+              <button type="button" class="stepper-btn" data-step="year" data-delta="1" aria-label="Increase year">+</button>
+            </div>
           </div>
           <button class="week-submit" type="submit" aria-label="Show date range" title="Show date range">
             <svg aria-hidden="true"><use href="#icon-arrow"></use></svg>

@@ -105,3 +105,46 @@ test('changing the week repeatedly preserves the chosen ISO year', async ({ page
     await expect(page.locator('#year-input')).toHaveValue('2021');
   }
 });
+
+test('week steppers type and scrub, rolling across ISO year ends', async ({ page }) => {
+  await page.goto('/');
+  await page.locator('#week-input').fill('52');
+  await page.locator('#year-input').fill('2027');
+  await expect(page.locator('#week-range')).toHaveText('27 Dec 2027 – 2 Jan 2028');
+
+  await page.locator('[data-step="week"][data-delta="1"]').click();
+  await expect(page.locator('#week-input')).toHaveValue('1');
+  await expect(page.locator('#year-input')).toHaveValue('2028');
+  await expect(page.locator('#week-range')).toHaveText('3 Jan – 9 Jan 2028');
+  await expect(page.locator('#week-error')).toBeHidden();
+
+  await page.locator('[data-step="week"][data-delta="-1"]').click();
+  await expect(page.locator('#week-input')).toHaveValue('52');
+  await expect(page.locator('#year-input')).toHaveValue('2027');
+
+  await page.locator('[data-step="year"][data-delta="1"]').click();
+  await expect(page.locator('#year-input')).toHaveValue('2028');
+  await expect(page.locator('#week-input')).toHaveValue('52');
+
+  await page.locator('#week-input').fill('53');
+  await page.locator('#year-input').fill('2026');
+  await page.locator('[data-step="year"][data-delta="1"]').click();
+  await expect(page.locator('#week-input')).toHaveValue('52');
+  await expect(page.locator('#year-input')).toHaveValue('2027');
+  await expect(page.locator('#week-error')).toBeHidden();
+});
+
+test('week steppers expose at least 44px tap targets', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  for (const selector of [
+    '[data-step="week"][data-delta="-1"]',
+    '[data-step="week"][data-delta="1"]',
+    '[data-step="year"][data-delta="-1"]',
+    '[data-step="year"][data-delta="1"]',
+  ]) {
+    const box = await page.locator(selector).boundingBox();
+    expect(box.width).toBeGreaterThanOrEqual(44);
+    expect(box.height).toBeGreaterThanOrEqual(44);
+  }
+});

@@ -10,6 +10,8 @@ test('the approved English and Swedish strings are available', () => {
   assert.equal(STRINGS.en.weekToDates, 'Week → dates');
   assert.equal(STRINGS.sv.weekToDates, 'Vecka → datum');
   assert.equal(STRINGS.sv.isoNote, 'ISO-veckor: mån–sön; vecka 1 innehåller årets första torsdag.');
+  assert.equal(STRINGS.en.increaseWeek, 'Increase week');
+  assert.equal(STRINGS.sv.decreaseYear, 'Minska år');
 });
 
 test('Swedish browser languages default to SV', () => {

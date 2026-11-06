@@ -2,10 +2,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
+  clampIsoWeek,
   datesOfIsoWeek,
   isoWeekNumber,
   isoWeekOfDate,
   isoWeekYear,
+  stepIsoWeek,
+  stepIsoYear,
   todayInStockholm,
   weeksInIsoYear,
 } from '../domain/iso-week.js';
@@ -176,4 +179,48 @@ test('year lengths match the first-Thursday invariant for 400 ISO years', () => 
     assert.equal(isoWeekYear(lastWeek), year);
     assert.equal(thursdayYear, year);
   }
+});
+
+test('clampIsoWeek keeps weeks inside the year length', () => {
+  assert.equal(clampIsoWeek(0, 2027), 1);
+  assert.equal(clampIsoWeek(53, 2027), 52);
+  assert.equal(clampIsoWeek(53, 2026), 53);
+  assert.equal(clampIsoWeek(12, 2026), 12);
+  assert.equal(clampIsoWeek(12.5, 2026), null);
+});
+
+test('stepIsoWeek rolls past the last week into the next year', () => {
+  assert.deepEqual(stepIsoWeek(52, 2027, 1), { week: 1, year: 2028 });
+  assert.deepEqual(stepIsoWeek(53, 2026, 1), { week: 1, year: 2027 });
+});
+
+test('stepIsoWeek rolls below week 1 into the previous year last week', () => {
+  assert.deepEqual(stepIsoWeek(1, 2027, -1), { week: 53, year: 2026 });
+  assert.deepEqual(stepIsoWeek(1, 2028, -1), { week: 52, year: 2027 });
+});
+
+test('stepIsoWeek clamps an invalid week before stepping', () => {
+  assert.deepEqual(stepIsoWeek(53, 2027, 1), { week: 1, year: 2028 });
+  assert.deepEqual(stepIsoWeek(53, 2027, -1), { week: 51, year: 2027 });
+});
+
+test('stepIsoWeek can step by multiple weeks across a year boundary', () => {
+  assert.deepEqual(stepIsoWeek(51, 2027, 3), { week: 2, year: 2028 });
+  assert.deepEqual(stepIsoWeek(2, 2028, -3), { week: 51, year: 2027 });
+});
+
+test('stepIsoYear clamps week 53 when moving into a 52-week year', () => {
+  assert.deepEqual(stepIsoYear(53, 2026, 1), { week: 52, year: 2027 });
+  assert.deepEqual(stepIsoYear(45, 2026, 1), { week: 45, year: 2027 });
+  assert.deepEqual(stepIsoYear(52, 2027, -1), { week: 52, year: 2026 });
+});
+
+test('step helpers stop at the supported year bounds', () => {
+  assert.deepEqual(stepIsoYear(10, 1, -1), { week: 10, year: 1 });
+  assert.deepEqual(stepIsoYear(10, 9999, 1), { week: 10, year: 9999 });
+  assert.deepEqual(stepIsoWeek(1, 1, -1), { week: 1, year: 1 });
+  assert.deepEqual(stepIsoWeek(weeksInIsoYear(9999), 9999, 1), {
+    week: weeksInIsoYear(9999),
+    year: 9999,
+  });
 });

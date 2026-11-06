@@ -97,3 +97,64 @@ export function todayInStockholm(now = new Date()) {
   const localDate = new Date(Number(values.year), Number(values.month) - 1, Number(values.day), 12);
   return toUtcNoon(localDate);
 }
+
+const MIN_WEEK = 1;
+
+/**
+ * Clamp a week number into the valid ISO range for a year.
+ * Returns null when week is not an integer (caller keeps the typed value).
+ */
+export function clampIsoWeek(week, year) {
+  assertIsoYear(year);
+  if (!Number.isInteger(week)) return null;
+  const max = weeksInIsoYear(year);
+  return Math.min(Math.max(week, MIN_WEEK), max);
+}
+
+/**
+ * Step an ISO week by `delta` weeks, rolling across year boundaries.
+ * Past the last week of a year → week 1 of the next year (and the reverse).
+ * Out-of-range weeks are clamped for the current year before the step.
+ */
+export function stepIsoWeek(week, year, delta) {
+  assertIsoYear(year);
+  if (!Number.isInteger(delta) || delta === 0) {
+    throw new RangeError('delta must be a non-zero integer.');
+  }
+  const baseWeek = clampIsoWeek(Number.isInteger(week) ? week : MIN_WEEK, year) ?? MIN_WEEK;
+  let nextWeek = baseWeek + delta;
+  let nextYear = year;
+
+  while (nextWeek > weeksInIsoYear(nextYear)) {
+    nextWeek -= weeksInIsoYear(nextYear);
+    nextYear += 1;
+    if (nextYear > MAX_YEAR) {
+      return { week: weeksInIsoYear(MAX_YEAR), year: MAX_YEAR };
+    }
+  }
+
+  while (nextWeek < MIN_WEEK) {
+    nextYear -= 1;
+    if (nextYear < MIN_YEAR) {
+      return { week: MIN_WEEK, year: MIN_YEAR };
+    }
+    nextWeek += weeksInIsoYear(nextYear);
+  }
+
+  return { week: nextWeek, year: nextYear };
+}
+
+/**
+ * Step the ISO year by `delta` years and clamp the week to that year's length.
+ */
+export function stepIsoYear(week, year, delta) {
+  assertIsoYear(year);
+  if (!Number.isInteger(delta) || delta === 0) {
+    throw new RangeError('delta must be a non-zero integer.');
+  }
+  let nextYear = year + delta;
+  if (nextYear < MIN_YEAR) nextYear = MIN_YEAR;
+  if (nextYear > MAX_YEAR) nextYear = MAX_YEAR;
+  const clamped = clampIsoWeek(Number.isInteger(week) ? week : MIN_WEEK, nextYear);
+  return { week: clamped ?? MIN_WEEK, year: nextYear };
+}

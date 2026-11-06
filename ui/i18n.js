@@ -12,6 +12,10 @@ export const STRINGS = Object.freeze({
     isoNote: 'ISO weeks: Mon–Sun; week 1 has the year’s first Thursday.',
     langEn: 'EN',
     langSv: 'SV',
+    decreaseWeek: 'Decrease week',
+    increaseWeek: 'Increase week',
+    decreaseYear: 'Decrease year',
+    increaseYear: 'Increase year',
   }),
   sv: Object.freeze({
     today: 'Idag',
@@ -26,6 +30,10 @@ export const STRINGS = Object.freeze({
     isoNote: 'ISO-veckor: mån–sön; vecka 1 innehåller årets första torsdag.',
     langEn: 'EN',
     langSv: 'SV',
+    decreaseWeek: 'Minska vecka',
+    increaseWeek: 'Öka vecka',
+    decreaseYear: 'Minska år',
+    increaseYear: 'Öka år',
   }),
 });
 
