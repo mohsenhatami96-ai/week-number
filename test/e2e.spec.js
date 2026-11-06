@@ -91,6 +91,59 @@ test('280px narrow layout stays within the viewport', async ({ page }) => {
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(280);
 });
 
+test('phone day strips scroll 48px chips and hide the month', async ({ page }) => {
+  await page.clock.install({ time: new Date('2026-11-06T10:00:00Z') });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+
+  const measure = (selector) => page.locator(selector).evaluate((strip) => {
+    const chip = strip.querySelector('.day-chip');
+    const chipStyle = getComputedStyle(chip);
+    const stripStyle = getComputedStyle(strip);
+    return {
+      gap: stripStyle.columnGap || stripStyle.gap,
+      paddingTop: chipStyle.paddingTop,
+      paddingBottom: chipStyle.paddingBottom,
+      minWidth: chipStyle.minWidth,
+      fontSize: getComputedStyle(chip.querySelector('.day-num')).fontSize,
+      month: getComputedStyle(chip.querySelector('.day-month')).display,
+      width: chip.getBoundingClientRect().width,
+      height: chip.getBoundingClientRect().height,
+      overflowX: stripStyle.overflowX,
+      scrolls: strip.scrollWidth > strip.clientWidth + 1,
+      pageFits: document.documentElement.scrollWidth <= window.innerWidth + 1,
+    };
+  });
+
+  for (const selector of ['#today-days', '#date-days', '#week-days']) {
+    const box = await measure(selector);
+    expect(box.gap).toBe('10px');
+    expect(box.paddingTop).toBe('12px');
+    expect(box.paddingBottom).toBe('12px');
+    expect(box.fontSize).toBe('14px');
+    expect(box.month).toBe('none');
+    expect(box.overflowX).toBe('auto');
+    expect(box.width).toBeGreaterThanOrEqual(48);
+    expect(box.height).toBeGreaterThanOrEqual(44);
+    expect(box.scrolls).toBe(true);
+    expect(box.pageFits).toBe(true);
+  }
+
+  const strip = page.locator('#today-days');
+  await strip.evaluate((el) => { el.scrollLeft = el.scrollWidth; });
+  await expect(strip.locator('.day-chip').last()).toBeInViewport();
+
+  await page.setViewportSize({ width: 280, height: 653 });
+  const narrow = await measure('#today-days');
+  expect(narrow.width).toBeGreaterThanOrEqual(48);
+  expect(narrow.scrolls).toBe(true);
+  expect(narrow.month).toBe('none');
+  expect(narrow.pageFits).toBe(true);
+
+  await page.setViewportSize({ width: 420, height: 900 });
+  expect(await page.locator('#today-days .day-month').first().evaluate((el) => getComputedStyle(el).display)).not.toBe('none');
+});
+
 
 test('changing the week repeatedly preserves the chosen ISO year', async ({ page }) => {
   await page.goto('/');
@@ -176,7 +229,27 @@ test('dark mode toggle persists and updates theme tokens', async ({ page }) => {
   expect(pageColor).toBe('#0f141d');
   await page.reload();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  const tokens = await page.evaluate(() => {
+    const style = getComputedStyle(document.documentElement);
+    return {
+      accent: style.getPropertyValue('--accent-text').trim(),
+      hover: style.getPropertyValue('--accent-hover').trim(),
+      blue: style.getPropertyValue('--blue').trim(),
+      blueDark: style.getPropertyValue('--blue-dark').trim(),
+    };
+  });
+  expect(tokens.accent).toBe('#9ec0ff');
+  expect(tokens.hover).toBe('#b6d0ff');
+  expect(tokens.blue).toBe('#245bc7');
+  expect(tokens.blueDark.toLowerCase()).not.toBe('#194ca9');
+  await expect(page.locator('#today-week')).toHaveCSS('color', 'rgb(158, 192, 255)');
+  await expect(page.locator('#date-week-badge')).toHaveCSS('color', 'rgb(158, 192, 255)');
+  await expect(page.locator('[data-language="en"]')).toHaveCSS('color', 'rgb(158, 192, 255)');
+  const todayChip = page.locator('#today-days .day-chip.is-today');
+  await expect(todayChip).toHaveCSS('background-color', 'rgb(36, 91, 199)');
+  await expect(todayChip).toHaveCSS('color', 'rgb(255, 255, 255)');
   await toggle.click();
+  await expect.poll(() => page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--accent-text').trim())).toBe('#194ca9');
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
   expect(await page.evaluate(() => localStorage.getItem('weekTool.theme'))).toBe('light');
 });
